@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "composite": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
+    "target": "es2021",
+    // "lib": [],
+    "jsx": "react",
+    "module": "es2020",
+    "rootDir": "./src",
+    "moduleResolution": "node",
+    "declaration": true,
+    "outDir": "./lib",
+    "removeComments": false,
+    "emitBOM": false,
+    "newLine": "lf",
+    "stripInternal": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true
+  }
+}
