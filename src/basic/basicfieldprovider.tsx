@@ -26,7 +26,7 @@ export const isNumberFieldProperties = (
 };
 
 export interface LabelProps {
-  htmlFor: string;
+  htmlFor?: string;
 }
 
 export interface InputProps {
@@ -48,20 +48,25 @@ export interface InputProps {
  * As well as very basic arrays
  */
 export class BasicFieldProvider implements FieldProvider {
-  public getField(fieldName: string, fieldDescription: ResourceField): SingleField {
+  public getField(
+    fieldName: string,
+    fieldDescription: ResourceField,
+    muteLabel: boolean,
+  ): SingleField {
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    const Label = this.getLabel(fieldName, fieldDescription);
+    const Label = muteLabel
+      ? undefined
+      : this.getLabel(fieldName, fieldDescription.label);
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const Input = this.getInput(fieldName, fieldDescription);
     return (props: {
-      key: string,
       name: string,
       value: unknown,
       onChange: ChangeFunc,
     }) => {
       const uniqId = getUniqId();
-      return <div key={props.key}>
-        <Label htmlFor={uniqId} />
+      return <div>
+        {Label ? <Label htmlFor={uniqId} /> : undefined}
         <Input
           inputId={uniqId}
           name={props.name}
@@ -74,6 +79,7 @@ export class BasicFieldProvider implements FieldProvider {
 
   public getArrayField(
     fieldName: string,
+    label: string | undefined,
     arrayType: ArrayType,
     childFields: Record<string, Field>,
   ): ArrayField {
@@ -102,7 +108,10 @@ export class BasicFieldProvider implements FieldProvider {
         </div>;
       };
 
-      return <div key={props.key}>
+      // eslint-disable-next-line react/no-this-in-sfc, @typescript-eslint/naming-convention
+      const Label = this.getLabel(fieldName, label);
+      return <div>
+        <Label />
         {arrayValue.map((value, position) => singleChild({
           value: value as unknown,
           position,
@@ -114,9 +123,9 @@ export class BasicFieldProvider implements FieldProvider {
   /** Return a function component to display the label of the given field */
   protected getLabel(
     fieldName: string,
-    fieldDescription: ResourceField,
+    label: string | undefined,
   ): React.FC<LabelProps> {
-    const labelStr = fieldDescription.label ?? fieldName;
+    const labelStr = label ?? fieldName;
     return props => <label htmlFor={props.htmlFor}>
       {labelStr}
     </label>;

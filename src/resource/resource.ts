@@ -47,6 +47,7 @@ const getFieldSingle = (
   fieldName: string,
   fieldType: ResourceField,
   subFields: Array<string>,
+  muteLabel: boolean,
 ): Record<string, Field> => {
   if (isFieldDeep(fieldType)) {
     return getFieldDeep(
@@ -56,7 +57,7 @@ const getFieldSingle = (
       subFields,
     );
   }
-  return {[fieldName]: provider.getField(fieldName, fieldType)};
+  return {[fieldName]: provider.getField(fieldName, fieldType, muteLabel)};
 };
 
 const getFieldArray = (
@@ -71,14 +72,16 @@ const getFieldArray = (
     fieldName,
     fieldType,
     subFields,
+    true,
   );
   const arrayType = fieldType.isArray;
   if (arrayType === undefined || arrayType === ArrayType.noArray) {
     throw new Error("Unexpected state");
   }
   return {
-    fieldName: provider.getArrayField(
+    [fieldName]: provider.getArrayField(
       fieldName,
+      fieldType.label,
       arrayType,
       childFields,
     ),
@@ -95,7 +98,7 @@ const getField = (
   if (isFieldArray(fieldType)) {
     return getFieldArray(provider, fieldName, fieldType, subFields);
   }
-  return getFieldSingle(provider, fieldName, fieldType, subFields);
+  return getFieldSingle(provider, fieldName, fieldType, subFields, false);
 };
 
 /**
