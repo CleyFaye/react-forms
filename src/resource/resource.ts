@@ -1,5 +1,6 @@
-import {Field, FieldProvider} from "./fields/types.js";
-import {ArrayType, ResourceField, ResourceFieldEx, ResourceFields} from "./types.js";
+import {Field, FieldProvider} from "../fields/types.js";
+import {ArrayType, ResourceField, ResourceFields} from "./types.js";
+import {isFieldArray, isFieldDeep} from "./utils.js";
 
 const getFieldNameFromType = (
   fieldName: string,
@@ -18,23 +19,10 @@ const getFieldNameFromType = (
   ];
 };
 
-/** Determine if a ResourceField is an array of fields */
-const isFieldArray = (
-  fieldType: ResourceField,
-) => typeof fieldType !== "string" && fieldType.isArray !== ArrayType.noArray;
-
-/** Determine if a ResourceField map to another resource (=many fields) */
-const isFieldDeep = (
-  fieldType: ResourceField,
-) => !(
-  typeof fieldType === "string"
-    || typeof fieldType.type === "string"
-);
-
 /** Return all the fields making up a single ResourceField mapped to another ResourceFields */
 const getFieldDeep = (
   provider: FieldProvider,
-  fieldName: string,
+  fieldName: string | undefined,
   fieldType: ResourceFields,
   fields: Array<string>,
 ): Record<string, Field> => {
@@ -44,7 +32,11 @@ const getFieldDeep = (
     const subSubFields = fields.filter(c => c.startsWith(`${subFieldName}.`))
       .map(c => c.substring(`${subFieldName}.`.length));
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    Object.assign(res, getField(provider, subFieldName, subFieldType, subSubFields));
+    const effectiveSubFieldName = fieldName
+      ? `${fieldName}.${subFieldName}`
+      : subFieldName;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    Object.assign(res, getField(provider, effectiveSubFieldName, subFieldType, subSubFields));
   });
   return res;
 };
@@ -60,7 +52,7 @@ const getFieldSingle = (
     return getFieldDeep(
       provider,
       fieldName,
-      (fieldType as ResourceFieldEx).type as ResourceFields,
+      fieldType.type as ResourceFields,
       subFields,
     );
   }
@@ -80,10 +72,14 @@ const getFieldArray = (
     fieldType,
     subFields,
   );
+  const arrayType = fieldType.isArray;
+  if (arrayType === undefined || arrayType === ArrayType.noArray) {
+    throw new Error("Unexpected state");
+  }
   return {
     fieldName: provider.getArrayField(
       fieldName,
-      fieldType.isArray,
+      arrayType,
       childFields,
     ),
   };
@@ -97,7 +93,7 @@ const getField = (
   subFields: Array<string>,
 ): Record<string, Field> => {
   if (isFieldArray(fieldType)) {
-    return getFieldArray(provider, fieldName, fieldType as ResourceFieldEx, subFields);
+    return getFieldArray(provider, fieldName, fieldType, subFields);
   }
   return getFieldSingle(provider, fieldName, fieldType, subFields);
 };
@@ -131,14 +127,12 @@ export class Resource {
     fields?: Array<string>,
   ): Record<string, Field> {
     const effectiveFields = fields ?? this.getAllFieldsName();
-    const res: Record<string, Field> = {};
-    effectiveFields.filter(c => c.indexOf(".") === -1).forEach(fieldName => {
-      const fieldType = this.fields[fieldName];
-      const subFields = effectiveFields.filter(c => c.startsWith(`${fieldName}.`))
-        .map(c => c.substring(`${fieldName}.`.length));
-      Object.assign(res, getField(provider, fieldName, fieldType, subFields));
-    });
-    return res;
+    return getFieldDeep(
+      provider,
+      undefined,
+      this.fields,
+      effectiveFields,
+    );
   }
 
   /** Return all field names in this resource */

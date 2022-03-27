@@ -1,5 +1,5 @@
-import {ReactNode} from "react";
-import {ArrayType, ResourceField} from "../types.js";
+import React, {ReactNode} from "react";
+import {ArrayType, ResourceField} from "../resource/types.js";
 
 /** Return the appropriate React component for each field. */
 export interface FieldProvider {
@@ -20,23 +20,25 @@ export interface FieldProvider {
 /** Change function called when a field is updated */
 export type ChangeFunc = (name: string, newValue: unknown) => void;
 
+export interface SingleFieldProps {
+  key: string;
+  name: string;
+  value: unknown;
+  onChange: ChangeFunc;
+  position?: number;
+}
+
 /** Render a single field of a single known type. */
-export type SingleField = () => (
-  props: {
-    key: string,
-    name: string,
-    value: unknown,
-    onChange: ChangeFunc,
-    position: number | undefined,
-  },
-) => ReactNode;
+export type SingleField = React.FC<SingleFieldProps>;
+
+export interface ArrayFieldProps {
+  key: string;
+  name: string;
+  value: unknown;
+  onChange: ChangeFunc;
+}
 
 /** Render a single array field */
-export type ArrayField = () => (
-  props: {
-    key: string,
-    name: string,
-  },
-) => ReactNode;
+export type ArrayField = React.FC<ArrayFieldProps>;
 
 export type Field = SingleField | ArrayField;

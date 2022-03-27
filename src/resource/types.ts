@@ -14,13 +14,13 @@ Object.freeze(ArrayType);
  *
  * Allows defining more property than the basic type
  */
-export interface ResourceFieldEx {
+export interface ResourceField {
   type: string | ResourceFields;
-  isArray: ArrayType;
+  label?: string;
+  isArray?: ArrayType;
+  /** Custom properties for specific field implementation */
+  properties?: Record<string, unknown>;
 }
-
-/** A single resource field */
-export type ResourceField = string | ResourceFieldEx;
 
 /** A list of fields that makes up a full resource */
 export type ResourceFields = Record<string, ResourceField>;

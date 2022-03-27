@@ -1,18 +1,40 @@
 import React from "react";
 import ReactDOMServer from "react-dom/server.js";
-import {DummyFieldProvider} from "./dummy/dummyfieldprovider.js";
-import {Resource} from "./resource.js";
+import {BasicFieldProvider} from "./basic/basicfieldprovider.js";
+import {Resource} from "./resource/resource.js";
+import {ArrayType} from "./resource/types.js";
 
-const res = new Resource({name: "string", phone: "string"});
+const res = new Resource({
+  name: {type: "text"},
+  phone: {type: "text"},
+  /*
+  contacts: {
+    type: "text",
+    isArray: ArrayType.staticArray,
+  },
+  */
+});
 
-const fields = res.getFields(new DummyFieldProvider());
+const data = {
+  name: "bender bending rodriguez",
+  phone: "shn-mtl-ass",
+  /*
+  contacts: [
+    "fry",
+    "leela",
+    "fender",
+  ],
+  */
+};
+
+const fields = res.getFields(new BasicFieldProvider());
 
 let keyId = 0;
 
-const fieldComps = Object.keys(fields).map(fieldName => fields[fieldName]()({
+const fieldComps = Object.keys(fields).map(fieldName => fields[fieldName]({
   key: (++keyId).toString(),
   name: "titi",
-  value: undefined,
+  value: "potato",
   onChange(name: string, newValue: unknown): void {
     throw new Error("Function not implemented.");
   },
