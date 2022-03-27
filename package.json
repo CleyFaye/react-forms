@@ -4,7 +4,8 @@
   "description": "Declarative way to create React forms",
   "main": "index.js",
   "scripts": {
-    "pad": "node --loader ts-node/esm src/pad.tsx"
+    "pad": "node --loader ts-node/esm src/pad.tsx",
+    "check": "npx eslint ."
   },
   "type": "module",
   "repository": {
