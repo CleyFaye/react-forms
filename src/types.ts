@@ -1,3 +1,4 @@
+import {Validator} from "prop-types";
 import {ReactNode} from "react";
 
 interface BaseFieldDefinition {
@@ -6,11 +7,13 @@ interface BaseFieldDefinition {
   label?: string;
 }
 
-export interface DirectFieldDefinition extends BaseFieldDefinition {
+export interface FullDirectFieldDefinition extends BaseFieldDefinition {
   type?: "field" | undefined;
   /** The datatype. Must be accepted by the fields provider. */
   dataType: string;
 }
+
+export type DirectFieldDefinition = FullDirectFieldDefinition | string;
 
 export interface NestedFieldDefinition extends BaseFieldDefinition {
   type: "nest";
@@ -35,8 +38,28 @@ export type FieldDefinition = DirectFieldDefinition
 /** Definition of a data object layout */
 export type ResourceDefinition = Record<string, FieldDefinition>;
 
+export const validatorResourceDefinition: Validator<ResourceDefinition> = (
+  props,
+  propName,
+  componentName,
+) => {
+  // TODO implement type check?
+  if (!(propName in props)) return new Error(`Missing prop ${propName} in ${componentName}`);
+  return null;
+};
+
 /** Type for editable value. */
 export type ValueType = Record<string, unknown>;
+
+export const validatorValueType: Validator<ValueType> = (
+  props,
+  propName,
+  componentName,
+) => {
+  // TODO implement type check?
+  if (!(propName in props)) return new Error(`Missing prop ${propName} in ${componentName}`);
+  return null;
+};
 
 /** Change handler with only value */
 export type ChangeHandler<T = unknown> = (value: T) => void;
@@ -49,15 +72,13 @@ export interface LayoutArguments {
   fields: Record<string, ReactNode>;
   children?: ReactNode | Array<ReactNode> | undefined;
   depth: number;
-  onAction: ActionHandler;
 }
 
 export type LayoutFunction = (args: LayoutArguments) => ReactNode;
 
 export interface FieldProviderArguments<DataType = unknown> {
   name: string;
-  definition: DirectFieldDefinition;
-  onAction: ActionHandler;
+  definition: FullDirectFieldDefinition;
   value: DataType;
   onChange: NamedChangeHandler<DataType>;
 }
