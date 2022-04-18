@@ -34,8 +34,8 @@ For all field types it is possible to provide a structure that allows defining s
 properties.
 
 In addition to nested fields, there is support for nested arrays.
-Arrays can be static (only handling data present in the initial input) or dynamic (allowing adding
-and removing entries).
+Arrays can be static (only handling data present in the initial input) or dynamic (allowing adding,
+removing and rearranging entries).
 
 The definition of a JSON layout is done by matching the `ResourceDefinition` type in `resource.ts`.
 
@@ -72,7 +72,7 @@ The `Form` component takes some additional props:
 - `children` (the usual React property) can be provided, and it will be passed down to the layout.
 - `layout` as a custom render function that receive the actual rendered components for each required
   field.
-- `fieldsProvider` as a function that renders a single field
+- `fieldProvider` as a function that renders a single field
 - `arrayProvider` as a function that handles array properties
 - `fields` as an array of string identifying fields to expose in the form
 
@@ -89,11 +89,11 @@ It takes a function that accepts an object as its only argument with the followi
 This function should return a proper React node.
 
 #### Custom fields
-The `fieldsProvider` property defaults to basic HTML form fields.
+The `fieldProvider` property defaults to basic HTML form fields.
 It takes a function that accepts an object as its only argument with the following properties:
 
 - `name`: the field name
-- `definition`: the full field definition as an object matching the `FieldDefinition` interface
+- `definition`: the full field definition as an object matching the `DirectFieldDefinition` interface
 - `onAction`: a function that can be called to trigger an action on the form
 - `value`: the effective value for the field
 - `onChange`: a function to call when the value needs to be updated. Takes `name` and the new value
@@ -109,13 +109,16 @@ The `arrayProvider` property defaults to basic HTML to handle arrays.
 It takes a function that accepts an object as its only argument with the following properties:
 
 - `name`: the field name
-- `dynamic`: true if the array should be dynamic (user can add/remove entries)
-- `fields`: an array of fields, each entry representing an entry in the input value. Each entry is
-  an object with the following two properties: `key` and `component`. The `key` property is
+- `canAdd`: true if the array can be extended
+- `canRemove`: true if the array can be reduced
+- `canReorder`: true if the array's entries can be reorganised
+- `entries`: an array of components, each entry representing an entry in the input value. Each entry
+  is an object with the following two properties: `key` and `component`. The `key` property is
   guaranteed to follow changes properly in dynamic array
 - `onAdd`: a function to call when a new entry must be added
 - `onRemove`: a function to call when an entry must be removed. It takes the entry's `key` as an
   argument.
+- `onReorder`: a function to call to swap two entries. It takes the two `key` as arguments.
 
 This function should render a proper React node.
 

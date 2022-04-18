@@ -1,7 +1,9 @@
 {
   "files.exclude": {
+    ".eslintcache": true,
     ".tsbuildinfo": true,
     ".vscode": true,
+    "dist": true,
     "lib": true,
     "node_modules": true
   }
